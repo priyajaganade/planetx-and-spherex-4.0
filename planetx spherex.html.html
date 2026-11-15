@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPHEREx & Planet X Explorer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: #050816; color: white; }
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 14px; padding: 20px 7%; background: #10152c;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .logo { font-size: 23px; color: #55d6ff; font-weight: bold; }
+    nav a { color: white; text-decoration: none; margin-left: 16px; }
+    nav a:hover { color: #55d6ff; }
+    .hero {
+      min-height: 70vh; display: flex; flex-direction: column; justify-content: center;
+      align-items: center; text-align: center; padding: 30px;
+      background: linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
+      url("https://images.unsplash.com/photo-1462331940025-496dfbfc7564");
+      background-size: cover; background-position: center;
+    }
+    .hero h1 { font-size: clamp(32px, 6vw, 50px); color: #55d6ff; margin-bottom: 20px; }
+    .hero p { font-size: 18px; max-width: 720px; line-height: 1.7; }
+    button {
+      background: #00bfff; color: #00111b; padding: 12px 25px; border: 0;
+      border-radius: 8px; cursor: pointer; margin: 12px 8px; font-weight: bold;
+    }
+    button:hover { background: #55d6ff; }
+    section { padding: 55px 8%; text-align: center; scroll-margin-top: 75px; }
+    h2 { color: #55d6ff; margin-bottom: 22px; font-size: 30px; }
+    h3 { margin: 22px 0 10px; }
+    .about p { max-width: 850px; margin: auto; line-height: 1.8; font-size: 17px; }
+    .panel { background: #10152c; }
+    .upload-area { margin: 25px auto; }
+    input[type="file"] {
+      margin: 12px; padding: 10px; background: white; color: black;
+      border-radius: 5px; max-width: 100%;
+    }
+    .image-box {
+      width: 90%; max-width: 750px; height: 400px; margin: 28px auto;
+      position: relative; overflow: hidden; border: 2px solid #55d6ff;
+      background: #20243a;
+    }
+    .image-box img { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; }
+    #image2 { clip-path: inset(0 50% 0 0); }
+    #slider { width: 80%; max-width: 500px; margin: 20px; }
+    .tracker-container {
+      max-width: 850px; margin: auto; background: #151d38;
+      padding: 25px; border-radius: 15px;
+    }
+    .coordinate-input {
+      width: 100px; padding: 10px; margin: 8px; border-radius: 5px; border: none;
+    }
+    canvas {
+      display: block; margin: 20px auto; width: 100%; max-width: 600px;
+      background: #020617; border: 2px solid #55d6ff; border-radius: 10px;
+    }
+    #result { color: #55ffbb; font-size: 17px; margin-top: 15px; line-height: 1.6; }
+    label { display: inline-block; margin-top: 10px; }
+    #imageStatus { margin-top: 12px; }
+    footer { background: #10152c; padding: 25px; text-align: center; color: #aaa; line-height: 1.8; }
+    @media (max-width: 650px) {
+      nav { justify-content: center; text-align: center; }
+      nav div:last-child { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+      nav a { margin: 0; }
+      .image-box { height: 280px; }
+      section { padding: 42px 5%; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">SPHEREx & Planet X 🚀</div>
+    <div>
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#explore">Explore</a>
+      <a href="#compare">Compare</a>
+      <a href="#planetx">Planet X Tracker</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="home">
+    <h1>Explore the Hidden Universe</h1>
+    <p>Discover space observations, compare astronomical images, and visualize the possible movement of celestial objects with our SPHEREx and Planet X Explorer.</p>
+    <button onclick="document.getElementById('explore').scrollIntoView({behavior:'smooth'})">Start Exploring</button>
+  </section>
+
+  <section class="about" id="about">
+    <h2>About SPHEREx</h2>
+    <p>SPHEREx is a NASA space telescope mission. It observes the entire sky in 102 different near-infrared wavelength bands. It helps scientists study galaxies, stars, cosmic history, and other objects in the universe. This website lets users compare two space observation images and visualize possible movement between two positions.</p>
+  </section>
+
+  <section id="explore">
+    <h2>Explore Space Images</h2>
+    <p>Upload two space observation images below.</p>
+    <div class="upload-area">
+      <label for="file1">First Observation:</label><br>
+      <input type="file" id="file1" accept="image/*"><br>
+      <label for="file2">Second Observation:</label><br>
+      <input type="file" id="file2" accept="image/*"><br>
+      <button onclick="loadImages()">Compare Images</button>
+      <p id="imageStatus">Upload two images to begin comparison.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="compare">
+    <h2>Compare Space Observations</h2>
+    <p>Move the slider to compare two observations.</p>
+    <div class="image-box">
+      <img id="image1" alt="First observation">
+      <img id="image2" alt="Second observation">
+    </div>
+    <label for="slider">Comparison Slider</label><br>
+    <input type="range" id="slider" min="0" max="100" value="50" oninput="changeSlider()">
+  </section>
+
+  <section id="planetx">
+    <div class="tracker-container">
+      <h2>🚀 Planet X - Moving Object Tracker</h2>
+      <p>Enter the object's old and new positions to visualize possible movement.</p>
+
+      <h3>Old Position (%)</h3>
+      <label for="oldX">X Coordinate:</label>
+      <input class="coordinate-input" type="number" id="oldX" value="20" min="0" max="100">
+      <label for="oldY">Y Coordinate:</label>
+      <input class="coordinate-input" type="number" id="oldY" value="30" min="0" max="100">
+
+      <h3>New Position (%)</h3>
+      <label for="newX">X Coordinate:</label>
+      <input class="coordinate-input" type="number" id="newX" value="70" min="0" max="100">
+      <label for="newY">Y Coordinate:</label>
+      <input class="coordinate-input" type="number" id="newY" value="60" min="0" max="100">
+      <br>
+      <button onclick="animateObject()">Show Object Movement</button>
+      <button onclick="resetCanvas()">Reset Tracker</button>
+      <canvas id="motionCanvas" width="600" height="400"></canvas>
+      <div id="result">Enter coordinates and click Show Object Movement.</div>
+    </div>
+  </section>
+
+  <footer>
+    <p>SPHEREx & Planet X Explorer | NASA Space Apps Hackathon</p>
+    <p>Exploring the Universe Through Technology</p>
+  </footer>
+
+  <script>
+    // SPHEREx image comparison
+    let imageUrl1 = null;
+    let imageUrl2 = null;
+
+    function loadImages() {
+      const file1 = document.getElementById("file1").files[0];
+      const file2 = document.getElementById("file2").files[0];
+
+      if (!file1 || !file2) {
+        alert("Please upload both images!");
+        return;
+      }
+
+      if (imageUrl1) URL.revokeObjectURL(imageUrl1);
+      if (imageUrl2) URL.revokeObjectURL(imageUrl2);
+
+      imageUrl1 = URL.createObjectURL(file1);
+      imageUrl2 = URL.createObjectURL(file2);
+      document.getElementById("image1").src = imageUrl1;
+      document.getElementById("image2").src = imageUrl2;
+      document.getElementById("imageStatus").innerText =
+        "Images loaded successfully! Move the slider to compare.";
+      changeSlider();
+    }
+
+    function changeSlider() {
+      const value = document.getElementById("slider").value;
+      document.getElementById("image2").style.clipPath =
+        "inset(0 " + (100 - value) + "% 0 0)";
+    }
+
+    // Planet X movement tracker
+    const canvas = document.getElementById("motionCanvas");
+    const ctx = canvas.getContext("2d");
+    let animationId = null;
+
+    function drawBackground() {
+      ctx.fillStyle = "#020617";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 100; i++) {
+        const x = (i * 97) % canvas.width;
+        const y = (i * 53) % canvas.height;
+        ctx.fillStyle = "white";
+        ctx.fillRect(x, y, 2, 2);
+      }
+
+      ctx.strokeStyle = "#243453";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= canvas.width; x += 60) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y <= canvas.height; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+    }
+
+    function drawObject(x, y, color, label) {
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 15;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "white";
+      ctx.font = "14px Arial";
+      ctx.fillText(label, x + 12, y - 12);
+    }
+
+    function animateObject() {
+      cancelAnimationFrame(animationId);
+
+      const oldX = Number(document.getElementById("oldX").value);
+      const oldY = Number(document.getElementById("oldY").value);
+      const newX = Number(document.getElementById("newX").value);
+      const newY = Number(document.getElementById("newY").value);
+      const values = [oldX, oldY, newX, newY];
+
+      if (!values.every(v => Number.isFinite(v) && v >= 0 && v <= 100)) {
+        document.getElementById("result").innerText =
+          "Please enter coordinates between 0 and 100.";
+        return;
+      }
+
+      const x1 = oldX / 100 * canvas.width;
+      const y1 = oldY / 100 * canvas.height;
+      const x2 = newX / 100 * canvas.width;
+      const y2 = newY / 100 * canvas.height;
+      const dx = newX - oldX;
+      const dy = newY - oldY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      document.getElementById("result").innerHTML =
+        "Movement Distance: " + distance.toFixed(2) +
+        "%<br>Direction: X = " + dx.toFixed(2) +
+        ", Y = " + dy.toFixed(2);
+
+      let progress = 0;
+      function draw() {
+        drawBackground();
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = "yellow";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        drawObject(x1, y1, "#00aaff", "Old Position");
+        const currentX = x1 + (x2 - x1) * progress;
+        const currentY = y1 + (y2 - y1) * progress;
+        drawObject(currentX, currentY, "#ff4444", "Object");
+
+        if (progress >= 1) {
+          drawObject(x2, y2, "#00ff88", "New Position");
+          document.getElementById("result").innerHTML +=
+            "<br>Movement animation completed!";
+          animationId = null;
+          return;
+        }
+
+        progress = Math.min(1, progress + 0.005);
+        animationId = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    function resetCanvas() {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+      drawBackground();
+      document.getElementById("result").innerText =
+        "Canvas reset. Enter new coordinates.";
+    }
+
+    drawBackground();
+  </script>
+</body>
+</html>
